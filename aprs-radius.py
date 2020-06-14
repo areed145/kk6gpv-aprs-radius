@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May  7 18:23:20 2019
-
-@author: areed145
-"""
-
-import dns
 import aprslib
 from datetime import datetime
 from pymongo import MongoClient
@@ -16,36 +7,36 @@ import os
 def unpack_dict(d):
     try:
         message = dict()
-        message['timestamp_'] = datetime.utcnow()
-        message['ttl'] = datetime.utcnow()
-        message['script'] = 'radius'
+        message["timestamp_"] = datetime.utcnow()
+        message["ttl"] = datetime.utcnow()
+        message["script"] = "radius"
         for k, v in d.items():
             try:
                 for k1, v1 in v.items():
-                    message[k+'_'+k1] = v1
-            except:
+                    message[k + "_" + k1] = v1
+            except Exception:
                 try:
                     message[k] = v
-                except:
+                except Exception:
                     message[k] = str(v)
         raw.insert_one(message)
         print(message)
-    except:
-        print('unpack failed')
+    except Exception:
+        print("unpack failed")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     while True:
         try:
             # MongoDB client
-            client = MongoClient(os.environ['MONGODB_CLIENT'])
+            client = MongoClient(os.environ["MONGODB_CLIENT"])
             db = client.aprs
             raw = db.raw
 
             # Mosquitto client
-            ais = aprslib.IS('N0CALL', '13023', port=14580)
-            ais.set_filter('r/30/-95/250 t/n')
+            ais = aprslib.IS("N0CALL", "13023", port=14580)
+            ais.set_filter("r/30/-95/250 t/n")
             ais.connect()
             ais.consumer(unpack_dict, raw=False)
-        except:
+        except Exception:
             pass
